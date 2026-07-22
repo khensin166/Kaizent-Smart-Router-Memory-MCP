@@ -12,7 +12,7 @@ services:
       - "${LITELLM_PORT:-4000}:4000"
     volumes:
       - ./config/litellm_config.yaml:/app/config.yaml
-    command: [ "--config", "/app/config.yaml", "--port", "4000" ]
+    command: [ "--config", "/app/config.yaml", "--port", "4000", "--num_workers", "1", "--telemetry", "False" ]
     environment:
       - LITELLM_MASTER_KEY=${KAIZENT_API_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}

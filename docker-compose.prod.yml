@@ -9,7 +9,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 300M
+          memory: 512M
 
   kaizent-router:
     restart: always
