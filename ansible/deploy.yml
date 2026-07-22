@@ -68,6 +68,9 @@
         content: |
           # Docker Registry
           IMAGE_PREFIX={{ image_prefix }}
+          
+          # OmniRoute Settings
+          INITIAL_PASSWORD={{ lookup('env', 'INITIAL_PASSWORD') | default('CHANGEME', true) }}
         dest: "{{ project_dir }}/.env"
         mode: '0600'
       no_log: true  # Sembunyikan isi dari log Ansible
