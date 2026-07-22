@@ -1,0 +1,45 @@
+---
+- name: Kaizent - Production Hardening (Batch 12)
+  hosts: kaizent_vps
+  become: yes
+  vars:
+    project_dir: /opt/kaizent
+
+  tasks:
+    # ── Log Rotation ────────────────────────────────────────────────────────────
+    - name: Setup Docker log rotation
+      copy:
+        content: |
+          {
+            "log-driver": "json-file",
+            "log-opts": {
+              "max-size": "10m",
+              "max-file": "3"
+            }
+          }
+        dest: /etc/docker/daemon.json
+        mode: '0644'
+      notify: Restart Docker
+
+    # ── Backup Cron ─────────────────────────────────────────────────────────────
+    - name: Setup backup cron job (setiap malam jam 02:00)
+      cron:
+        name: "Kaizent Daily Backup"
+        minute: "0"
+        hour: "2"
+        job: >
+          cd {{ project_dir }} &&
+          ansible-playbook -i ansible/inventory ansible/backup.yml
+          >> /var/log/kaizent-backup.log 2>&1
+        user: "{{ ansible_user }}"
+
+
+    - name: Hardening selesai
+      debug:
+        msg: "✅ Production hardening selesai."
+
+  handlers:
+    - name: Restart Docker
+      service:
+        name: docker
+        state: restarted

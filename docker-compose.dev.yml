@@ -1,0 +1,30 @@
+version: '3.8'
+
+# Development overrides
+# Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+
+services:
+  kaizent-router:
+    # Use nodemon or ts-node-dev for hot reloading
+    command: ["npm", "run", "dev"]
+    volumes:
+      - ./src/router:/app
+      - /app/node_modules
+
+  mcp-filesystem:
+    command: ["npm", "run", "dev"]
+    volumes:
+      - ./src/mcp/filesystem:/app
+      - /app/node_modules
+
+  mcp-obsidian:
+    command: ["npm", "run", "dev"]
+    volumes:
+      - ./src/mcp/obsidian:/app
+      - /app/node_modules
+
+  kaizent-memory:
+    command: ["npm", "run", "dev"]
+    volumes:
+      - ./src/memory:/app
+      - /app/node_modules

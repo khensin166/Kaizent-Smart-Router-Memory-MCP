@@ -1,0 +1,27 @@
+---
+- name: Kaizent - Setup fresh VPS (one-time)
+  hosts: kaizent_vps
+  become: yes
+  tasks:
+    - name: Update dan upgrade apt
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Install dependensi dasar
+      apt:
+        name:
+          - curl
+          - git
+          - htop
+        state: present
+
+    - name: Start dan enable Docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: VPS setup selesai
+      debug:
+        msg: "✅ VPS siap. Jalankan deploy.yml untuk mendeploy Kaizent."

@@ -1,0 +1,15 @@
+{
+  "useMarkdownLinks": false,
+  "newFileLocation": "root",
+  "newLinkFormat": "shortest",
+  "attachmentFolderPath": "Assets",
+  "templateFolder": "Templates",
+  "dailyNotesFolder": "Daily Notes",
+  "defaultViewMode": "source",
+  "showLineNumber": true,
+  "spellcheck": false,
+  "readableLineLength": true,
+  "strictLineBreaks": false,
+  "foldHeading": false,
+  "foldIndent": false
+}

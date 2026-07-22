@@ -1,0 +1,30 @@
+# .gitignore untuk Kaizent
+
+# Data persisten — jangan commit ke Git
+data/sqlite/
+data/backups/
+data/memory/
+
+# Environment — simpan di lokal saja
+.env
+
+# Node modules
+node_modules/
+*/node_modules/
+
+# TypeScript build output
+dist/
+*/dist/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+logs/
+
+# Obsidian cache (tapi commit struktur vault)
+obsidian/Vault/.obsidian/workspace
+obsidian/Vault/.obsidian/workspace.json
+obsidian/Vault/.trash/

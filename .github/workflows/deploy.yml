@@ -1,0 +1,62 @@
+name: Deploy Kaizent to VPS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set IMAGE_PREFIX
+        run: echo "IMAGE_PREFIX=ghcr.io/$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Build and Push Docker images
+        run: |
+          docker compose -f docker-compose.yml build
+          docker compose -f docker-compose.yml push
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add VPS to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ vars.VPS_IP }} >> ~/.ssh/known_hosts
+
+      - name: Update Ansible Inventory
+        run: |
+          # Replace placeholder with actual VPS IP from secrets
+          sed -i "s/your-vps-ip/${{ vars.VPS_IP }}/g" ansible/inventory
+
+      - name: Run Ansible Deploy Playbook
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"
+          IMAGE_PREFIX: ${{ env.IMAGE_PREFIX }}
+          # Inject secrets into ansible playbook as environment variables
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GITHUB_TOKEN: ${{ vars.KAIZENT_GITHUB_TOKEN }}
+          KAIZENT_API_KEY: ${{ vars.KAIZENT_API_KEY }}
+        run: |
+          cd ansible
+          ansible-playbook -i inventory deploy.yml

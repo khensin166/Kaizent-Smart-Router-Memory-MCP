@@ -1,0 +1,138 @@
+---
+- name: Kaizent - Deploy & Force Update
+  hosts: kaizent_vps
+  become: yes
+  vars:
+    project_dir: /opt/kaizent
+
+    # Credentials dibaca dari environment atau Ansible Vault
+    openai_api_key: "{{ lookup('env', 'OPENAI_API_KEY') }}"
+    gemini_api_key: "{{ lookup('env', 'GEMINI_API_KEY') }}"
+    openrouter_api_key: "{{ lookup('env', 'OPENROUTER_API_KEY') }}"
+    github_token: "{{ lookup('env', 'GITHUB_TOKEN') }}"
+    kaizent_api_key: "{{ lookup('env', 'KAIZENT_API_KEY') }}"
+    image_prefix: "{{ lookup('env', 'IMAGE_PREFIX') }}"
+  tasks:
+    # ── 1. Pastikan Docker terinstal ────────────────────────────────────────────
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install Docker dan dependensi
+      apt:
+        name:
+          - curl
+          - git
+        state: present
+
+    - name: Pastikan Docker service berjalan
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    # ── 2. Setup direktori proyek ───────────────────────────────────────────────
+    - name: Membuat folder proyek di server target
+      file:
+        path: "{{ project_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Membuat sub-direktori data (persistent volumes)
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+      loop:
+        - "{{ project_dir }}/data/sqlite"
+        - "{{ project_dir }}/data/backups"
+        - "{{ project_dir }}/data/memory"
+        - "{{ project_dir }}/obsidian/Vault"
+        - "{{ project_dir }}/config"
+
+    # ── 3. Salin file konfigurasi & Source Code ───────────────────────────────────────────────
+    - name: Menyalin file docker-compose.yml ke server target
+      copy:
+        src: ../docker-compose.yml
+        dest: "{{ project_dir }}/docker-compose.yml"
+
+    - name: Menyalin file docker-compose.prod.yml ke server target
+      copy:
+        src: ../docker-compose.prod.yml
+        dest: "{{ project_dir }}/docker-compose.prod.yml"
+
+    - name: Menyalin konfigurasi LiteLLM
+      copy:
+        src: ../config/litellm_config.yaml
+        dest: "{{ project_dir }}/config/litellm_config.yaml"
+
+    # ── 4. Generate file .env dari environment/Vault ────────────────────────────
+    - name: Generate file .env (permission ketat, tidak di Git)
+      copy:
+        content: |
+          # AI Providers
+          OPENAI_API_KEY={{ openai_api_key }}
+          GEMINI_API_KEY={{ gemini_api_key }}
+          OPENROUTER_API_KEY={{ openrouter_api_key }}
+          GITHUB_TOKEN={{ github_token }}
+          
+          # Docker Registry
+          IMAGE_PREFIX={{ image_prefix }}
+
+          # Kaizent Core
+          KAIZENT_API_KEY={{ kaizent_api_key }}
+          KAIZENT_DB_PATH=/data/sqlite/kaizent.db
+
+          # Service Ports
+          KAIZENT_ROUTER_PORT=3000
+          LITELLM_PORT=4000
+        dest: "{{ project_dir }}/.env"
+        mode: '0600'
+      no_log: true  # Sembunyikan isi dari log Ansible
+
+    # ── 5. Update & deploy container ────────────────────────────────────────────
+    - name: Login ke GHCR
+      command: docker login ghcr.io -u dummy -p {{ github_token }}
+      no_log: true
+      ignore_errors: true
+    - name: Matikan container lama
+      command: docker compose -f docker-compose.yml -f docker-compose.prod.yml down
+      args:
+        chdir: "{{ project_dir }}"
+      ignore_errors: true
+
+    - name: Memaksa pembaruan (Force Update) Docker Compose
+      command: >
+        docker compose
+        -f docker-compose.yml
+        -f docker-compose.prod.yml
+        up -d --pull always --force-recreate --remove-orphans
+      args:
+        chdir: "{{ project_dir }}"
+
+    - name: Hapus image lama yang tidak terpakai
+      command: docker image prune -f
+
+    # ── 6. Healthcheck ──────────────────────────────────────────────────────────
+    - name: Tunggu Kaizent Router siap (healthcheck)
+      uri:
+        url: "http://localhost:3000/health"
+        status_code: 200
+      register: health_result
+      until: health_result.status == 200
+      retries: 12
+      delay: 5
+
+    - name: Tunggu Memory Service siap (healthcheck)
+      uri:
+        url: "http://localhost:3001/health"
+        status_code: 200
+      register: memory_health
+      until: memory_health.status == 200
+      retries: 12
+      delay: 5
+
+    - name: Deployment selesai
+      debug:
+        msg: "✅ Kaizent berhasil di-deploy di {{ inventory_hostname }}"

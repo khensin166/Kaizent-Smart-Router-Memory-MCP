@@ -1,0 +1,20 @@
+---
+- name: Kaizent - Rollback ke versi sebelumnya
+  hosts: kaizent_vps
+  become: yes
+  vars:
+    project_dir: /opt/kaizent
+  tasks:
+    - name: Stop semua container
+      command: docker compose -f docker-compose.yml -f docker-compose.prod.yml down
+      args:
+        chdir: "{{ project_dir }}"
+      ignore_errors: true
+
+    - name: Rollback ke image sebelumnya (gunakan tag spesifik)
+      debug:
+        msg: |
+          Untuk rollback manual:
+          1. Edit docker-compose.yml dan pin image ke tag versi sebelumnya
+          2. Jalankan: docker compose up -d --force-recreate
+          3. Verifikasi: curl http://localhost:3000/health

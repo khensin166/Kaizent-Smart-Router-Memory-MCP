@@ -1,0 +1,40 @@
+version: '3.8'
+
+# Production overrides
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  litellm:
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  kaizent-router:
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  mcp-filesystem:
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+  mcp-obsidian:
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+  kaizent-memory:
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M

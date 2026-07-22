@@ -1,0 +1,5 @@
+[kaizent_vps]
+172.197.208.34 ansible_user=khensin166 ansible_ssh_private_key_file=~/.ssh/mifx_azure
+
+[caddy_vps]
+your-caddy-vps-ip ansible_user=khensin166 ansible_ssh_private_key_file=~/.ssh/mifx_azure

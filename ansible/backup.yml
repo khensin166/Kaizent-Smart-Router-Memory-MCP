@@ -1,0 +1,61 @@
+---
+- name: Kaizent - Backup Data
+  hosts: kaizent_vps
+  become: yes
+  vars:
+    project_dir: /opt/kaizent
+    backup_dir: "{{ project_dir }}/data/backups"
+    timestamp: "{{ lookup('pipe', 'date +%Y%m%d_%H%M%S') }}"
+
+  tasks:
+    - name: Buat direktori backup jika belum ada
+      file:
+        path: "{{ backup_dir }}"
+        state: directory
+        mode: "0755"
+
+    # ── Backup SQLite ───────────────────────────────────────────────────────────
+    - name: Backup SQLite database
+      archive:
+        path: "{{ project_dir }}/data/sqlite"
+        dest: "{{ backup_dir }}/kaizent_backup_{{ timestamp }}_sqlite.tar.gz"
+        format: gz
+      ignore_errors: true
+
+    # ── Backup Obsidian Vault ───────────────────────────────────────────────────
+    - name: Backup Obsidian Vault
+      archive:
+        path: "{{ project_dir }}/obsidian/Vault"
+        dest: "{{ backup_dir }}/kaizent_backup_{{ timestamp }}_vault.tar.gz"
+        format: gz
+        exclude_path:
+          - "{{ project_dir }}/obsidian/Vault/.obsidian/workspace*"
+          - "{{ project_dir }}/obsidian/Vault/.trash"
+      ignore_errors: true
+
+    # ── Backup konfigurasi ──────────────────────────────────────────────────────
+    - name: Backup konfigurasi
+      archive:
+        path: "{{ project_dir }}/config"
+        dest: "{{ backup_dir }}/kaizent_backup_{{ timestamp }}_config.tar.gz"
+        format: gz
+      ignore_errors: true
+
+    # ── Cleanup backup lama ─────────────────────────────────────────────────────
+    - name: Hapus backup lebih dari 7 hari
+      find:
+        paths: "{{ backup_dir }}"
+        patterns: "kaizent_backup_*"
+        age: "7d"
+        age_stamp: mtime
+      register: old_backups
+
+    - name: Remove old backup files
+      file:
+        path: "{{ item.path }}"
+        state: absent
+      loop: "{{ old_backups.files }}"
+
+    - name: Backup selesai
+      debug:
+        msg: "✅ Backup selesai: {{ backup_dir }}/kaizent_backup_{{ timestamp }}*"
