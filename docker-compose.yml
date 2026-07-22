@@ -18,6 +18,7 @@ services:
       - INITIAL_PASSWORD=${INITIAL_PASSWORD:-}
     volumes:
       - ./data/omniroute:/root/.omniroute
+      - ./obsidian/Vault:/vault
     networks:
       - kaizent_network
 
