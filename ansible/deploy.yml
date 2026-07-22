@@ -62,31 +62,12 @@
         src: ../docker-compose.prod.yml
         dest: "{{ project_dir }}/docker-compose.prod.yml"
 
-    - name: Menyalin konfigurasi LiteLLM
-      copy:
-        src: ../config/litellm_config.yaml
-        dest: "{{ project_dir }}/config/litellm_config.yaml"
-
     # ── 4. Generate file .env dari environment/Vault ────────────────────────────
     - name: Generate file .env (permission ketat, tidak di Git)
       copy:
         content: |
-          # AI Providers
-          OPENAI_API_KEY={{ openai_api_key }}
-          GEMINI_API_KEY={{ gemini_api_key }}
-          OPENROUTER_API_KEY={{ openrouter_api_key }}
-          GITHUB_TOKEN={{ github_token }}
-          
           # Docker Registry
           IMAGE_PREFIX={{ image_prefix }}
-
-          # Kaizent Core
-          KAIZENT_API_KEY={{ kaizent_api_key }}
-          KAIZENT_DB_PATH=/data/sqlite/kaizent.db
-
-          # Service Ports
-          KAIZENT_ROUTER_PORT=3000
-          LITELLM_PORT=4000
         dest: "{{ project_dir }}/.env"
         mode: '0600'
       no_log: true  # Sembunyikan isi dari log Ansible
@@ -115,24 +96,15 @@
       command: docker image prune -f
 
     # ── 6. Healthcheck ──────────────────────────────────────────────────────────
-    - name: Tunggu Kaizent Router siap (healthcheck)
+    - name: Tunggu OmniRoute siap (healthcheck)
       uri:
-        url: "http://localhost:3000/health"
+        url: "http://localhost:3000/dashboard"
         status_code: 200
       register: health_result
       until: health_result.status == 200
       retries: 12
       delay: 5
 
-    - name: Tunggu Memory Service siap (healthcheck)
-      uri:
-        url: "http://localhost:3001/health"
-        status_code: 200
-      register: memory_health
-      until: memory_health.status == 200
-      retries: 12
-      delay: 5
-
     - name: Deployment selesai
       debug:
-        msg: "✅ Kaizent berhasil di-deploy di {{ inventory_hostname }}"
+        msg: "✅ OmniRoute berhasil di-deploy di {{ inventory_hostname }}"

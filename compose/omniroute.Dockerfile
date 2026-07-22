@@ -3,6 +3,9 @@ FROM node:20-alpine
 # Set working directory
 WORKDIR /app
 
+# Install build dependencies for native modules (like better-sqlite3)
+RUN apk add --no-cache python3 make g++
+
 # Install omniroute globally
 RUN npm install -g omniroute
 

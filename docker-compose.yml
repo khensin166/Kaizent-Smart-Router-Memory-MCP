@@ -15,6 +15,8 @@ services:
       - "${KAIZENT_ROUTER_PORT:-3000}:20128"
     environment:
       - HOST=0.0.0.0
+    volumes:
+      - ./data/omniroute:/root/.omniroute
     networks:
       - kaizent_network
 
