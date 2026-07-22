@@ -96,13 +96,21 @@
       command: docker image prune -f
 
     # ── 6. Healthcheck ──────────────────────────────────────────────────────────
+    - name: Tunggu port 3000 tersedia
+      wait_for:
+        host: 127.0.0.1
+        port: 3000
+        state: started
+        timeout: 300
+
     - name: Tunggu OmniRoute siap (healthcheck)
       uri:
-        url: "http://localhost:3000/dashboard"
+        url: "http://127.0.0.1:3000/dashboard"
         status_code: 200
+        return_content: no
       register: health_result
       until: health_result.status == 200
-      retries: 12
+      retries: 30
       delay: 5
 
     - name: Deployment selesai
