@@ -4,81 +4,11 @@ version: '3.8'
 # Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 services:
-  litellm:
+  omniroute:
     restart: always
+    environment:
+      - NODE_OPTIONS=--max-old-space-size=256
     deploy:
       resources:
         limits:
           memory: 512M
-
-  kaizent-router:
-    restart: always
-    environment:
-      - NODE_OPTIONS=--max-old-space-size=64
-    deploy:
-      resources:
-        limits:
-          memory: 128M
-
-  mcp-filesystem:
-    restart: always
-    environment:
-      - NODE_OPTIONS=--max-old-space-size=48
-    deploy:
-      resources:
-        limits:
-          memory: 96M
-
-  mcp-obsidian:
-    restart: always
-    environment:
-      - NODE_OPTIONS=--max-old-space-size=48
-    deploy:
-      resources:
-        limits:
-          memory: 96M
-
-  kaizent-memory:
-    restart: always
-    environment:
-      - NODE_OPTIONS=--max-old-space-size=64
-    deploy:
-      resources:
-        limits:
-          memory: 128M
-
-  mcp-github:
-    restart: always
-    environment:
-      - NODE_OPTIONS=--max-old-space-size=48
-    deploy:
-      resources:
-        limits:
-          memory: 96M
-
-  mcp-docker:
-    restart: always
-    environment:
-      - NODE_OPTIONS=--max-old-space-size=48
-    deploy:
-      resources:
-        limits:
-          memory: 96M
-
-  mcp-terminal:
-    restart: always
-    environment:
-      - NODE_OPTIONS=--max-old-space-size=48
-    deploy:
-      resources:
-        limits:
-          memory: 96M
-
-  mcp-sqlite:
-    restart: always
-    environment:
-      - NODE_OPTIONS=--max-old-space-size=48
-    deploy:
-      resources:
-        limits:
-          memory: 96M

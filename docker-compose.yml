@@ -1,132 +1,23 @@
 version: '3.8'
 
+# Default configuration for Kaizent Router
+# Note: Use docker-compose.prod.yml for production overrides
+
+services:
+  omniroute:
+    build:
+      context: .
+      dockerfile: compose/omniroute.Dockerfile
+    image: ${IMAGE_PREFIX:-kaizent}/omniroute:latest
+    container_name: omniroute
+    ports:
+      # Map OmniRoute's default port 20128 to host port 3000
+      - "${KAIZENT_ROUTER_PORT:-3000}:20128"
+    environment:
+      - HOST=0.0.0.0
+    networks:
+      - kaizent_network
+
 networks:
   kaizent_network:
     driver: bridge
-
-services:
-  litellm:
-    image: ghcr.io/berriai/litellm:main-latest
-    container_name: kaizent_litellm
-    ports:
-      - "${LITELLM_PORT:-4000}:4000"
-    volumes:
-      - ./config/litellm_config.yaml:/app/config.yaml
-    command: [ "--config", "/app/config.yaml", "--port", "4000", "--num_workers", "1", "--telemetry", "False" ]
-    environment:
-      - LITELLM_MASTER_KEY=${KAIZENT_API_KEY}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-    networks:
-      - kaizent_network
-
-  kaizent-router:
-    build:
-      context: .
-      dockerfile: compose/kaizent-router.Dockerfile
-    image: ${IMAGE_PREFIX:-kaizent}/kaizent-router:latest
-    container_name: kaizent_router
-    ports:
-      - "${KAIZENT_ROUTER_PORT:-3000}:3000"
-    environment:
-      - KAIZENT_ROUTER_PORT=3000
-      - LITELLM_URL=http://litellm:4000
-      - KAIZENT_API_KEY=${KAIZENT_API_KEY}
-    depends_on:
-      - litellm
-    networks:
-      - kaizent_network
-
-  mcp-filesystem:
-    build:
-      context: .
-      dockerfile: compose/mcp-filesystem.Dockerfile
-    image: ${IMAGE_PREFIX:-kaizent}/mcp-filesystem:latest
-    container_name: kaizent_mcp_filesystem
-    environment:
-      - PORT=8080
-      - FS_ROOT=/data
-    volumes:
-      - ./data:/data
-    networks:
-      - kaizent_network
-
-  mcp-obsidian:
-    build:
-      context: .
-      dockerfile: compose/mcp-obsidian.Dockerfile
-    image: ${IMAGE_PREFIX:-kaizent}/mcp-obsidian:latest
-    container_name: kaizent_mcp_obsidian
-    environment:
-      - PORT=8081
-      - OBSIDIAN_VAULT_ROOT=/vault
-    volumes:
-      - ./obsidian/Vault:/vault
-    networks:
-      - kaizent_network
-
-  kaizent-memory:
-    build:
-      context: .
-      dockerfile: compose/kaizent-memory.Dockerfile
-    image: ${IMAGE_PREFIX:-kaizent}/kaizent-memory:latest
-    container_name: kaizent_memory
-    ports:
-      - "3001:3001"
-    environment:
-      - PORT=3001
-      - KAIZENT_DB_PATH=/data/sqlite/kaizent.db
-    volumes:
-      - ./data/sqlite:/data/sqlite
-    networks:
-      - kaizent_network
-
-  mcp-github:
-    build:
-      context: .
-      dockerfile: compose/mcp-github.Dockerfile
-    image: ${IMAGE_PREFIX:-kaizent}/mcp-github:latest
-    container_name: kaizent_mcp_github
-    environment:
-      - PORT=8083
-      - GITHUB_TOKEN=${GITHUB_TOKEN}
-    networks:
-      - kaizent_network
-
-  mcp-docker:
-    build:
-      context: .
-      dockerfile: compose/mcp-docker.Dockerfile
-    image: ${IMAGE_PREFIX:-kaizent}/mcp-docker:latest
-    container_name: kaizent_mcp_docker
-    environment:
-      - PORT=8084
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    networks:
-      - kaizent_network
-
-  mcp-terminal:
-    build:
-      context: .
-      dockerfile: compose/mcp-terminal.Dockerfile
-    image: ${IMAGE_PREFIX:-kaizent}/mcp-terminal:latest
-    container_name: kaizent_mcp_terminal
-    environment:
-      - PORT=8085
-    networks:
-      - kaizent_network
-
-  mcp-sqlite:
-    build:
-      context: .
-      dockerfile: compose/mcp-sqlite.Dockerfile
-    image: ${IMAGE_PREFIX:-kaizent}/mcp-sqlite:latest
-    container_name: kaizent_mcp_sqlite
-    environment:
-      - PORT=8082
-      - SQLITE_DB_ROOT=/data/sqlite
-    volumes:
-      - ./data/sqlite:/data/sqlite
-    networks:
-      - kaizent_network
