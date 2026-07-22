@@ -16,6 +16,8 @@ services:
     environment:
       - HOST=0.0.0.0
       - INITIAL_PASSWORD=${INITIAL_PASSWORD:-}
+      - HTTP_PROXY=http://43.157.202.234:8888
+      - HTTPS_PROXY=http://43.157.202.234:8888
     volumes:
       - ./data/omniroute:/root/.omniroute
       - ./obsidian/Vault:/vault
