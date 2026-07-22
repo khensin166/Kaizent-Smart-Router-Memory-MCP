@@ -7,7 +7,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  build:
+    name: Build & Push Images
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -31,6 +32,18 @@ jobs:
         run: |
           docker compose -f docker-compose.yml build
           docker compose -f docker-compose.yml push
+
+  deploy:
+    name: Deploy to VPS
+    needs: build
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set IMAGE_PREFIX
+        run: echo "IMAGE_PREFIX=ghcr.io/$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.8.0
