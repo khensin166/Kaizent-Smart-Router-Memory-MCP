@@ -12,5 +12,5 @@ RUN npm install -g omniroute
 # OmniRoute exposes API and dashboard on 20128
 EXPOSE 20128
 
-# Run OmniRoute
+# Run OmniRoutee
 CMD ["omniroute"]

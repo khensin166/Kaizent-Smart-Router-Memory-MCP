@@ -45,5 +45,22 @@ Agar OmniRoute memiliki akses ke pemikiran dan *roadmap* Anda, kita telah menghu
 
 > **Catatan Penting:** Untuk "Knowledge Graph Memory" berbasis struktur kode seperti `DeusData/codebase-memory-mcp`, alat tersebut sebaiknya diinstal **secara lokal di komputer/laptop Anda**, lalu disambungkan lewat IDE Anda (Cursor/Cline) ke API OmniRoute. Memaksakan *indexing* proyek raksasa di VPS 1GB berisiko membuat server *crash*.
 
+## 5. Konfigurasi IDE & MCP (Agent Skills)
+
+Untuk menghubungkan OmniRoute dengan IDE (Cursor/Cline/Gemini) Anda dan memberikan akses MCP secara penuh, ikuti standar keamanan berikut:
+
+1. **Gunakan SSH Tunneling (Wajib):** Endpoint `/api/mcp/sse` hanya bisa diakses dari *localhost* (kode error: `LOCAL_ONLY`) demi keamanan. Buka terminal dan jalankan:
+   `ssh -i ~/.ssh/mifx_azure -L 20128:localhost:3000 khensin166@172.197.208.34`
+2. **Gunakan Admin Management Token:** API Key biasa (seperti `sk-...` untuk chat) akan menghasilkan error `Invalid management token`. Anda harus meng-*generate* token *admin* dari dalam VPS menggunakan perintah:
+   `docker exec omniroute omniroute tokens create --name IDE-MCP --scope admin`
+3. **Konfigurasi `mcp_config.json`:** Masukkan token *admin* tersebut ke konfigurasi IDE Anda dengan URL lokal: `http://127.0.0.1:20128/api/mcp/sse`.
+
+## 6. Auto-Routing & Praktik Terbaik di Aplikasi
+
+Untuk performa terbaik (anti-*down*), jangan menggunakan nama model spesifik secara langsung di kode aplikasi (seperti `Kainest_Be`). Gunakan fitur **Combo / Auto Routing** dari OmniRoute:
+
+- **Cara Menggunakan:** Ganti properti `"model": "llama-3..."` di kode *backend* Anda menjadi alias bawaan seperti `"model": "auto/coding"` atau `"model": "auto"`.
+- **Keuntungan (Zero-Config):** OmniRoute akan secara otomatis menyeimbangkan beban, memilih *provider* yang paling stabil atau gratis secara seketika (*real-time*), dan melakukan *fallback* otomatis (misal dari Groq ke Gemini atau xAI) jika ada yang mati. Kode Anda menjadi kebal terhadap gangguan dari server AI (*Unbreakable*).
+
 ---
-**Status Akhir:** Infrastruktur Enterprise AI Router Anda kini berdiri kokoh, aman, dan beroperasi penuh! 🏆
+**Status Akhir:** Infrastruktur Enterprise AI Router Anda kini berdiri kokoh, aman, terhubung mulus ke IDE Anda dengan MCP, dan beroperasi penuh! 🏆
