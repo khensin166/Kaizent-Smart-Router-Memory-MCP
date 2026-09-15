@@ -66,6 +66,7 @@ jobs:
           ANSIBLE_HOST_KEY_CHECKING: "False"
           IMAGE_PREFIX: ${{ env.IMAGE_PREFIX }}
           # Inject secrets into ansible playbook as environment variables
+          GITHUB_ACTOR: ${{ github.actor }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}

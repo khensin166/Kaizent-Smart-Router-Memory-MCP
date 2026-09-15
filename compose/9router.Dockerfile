@@ -13,4 +13,4 @@ RUN npm install -g 9router
 EXPOSE 20128
 
 # Run 9Router
-CMD ["9router"]
+CMD ["9router", "--tray", "--no-browser", "--log"]

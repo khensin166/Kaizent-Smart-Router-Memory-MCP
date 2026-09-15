@@ -5,7 +5,7 @@ Kaizent adalah AI Engineering Platform pribadi yang berfungsi sebagai coding ass
 ## Arsitektur
 
 Kaizent terdiri dari beberapa layer utama:
-1. **OmniRouter (LiteLLM + Kaizent Layer):** Menangani routing ke model AI (OpenAI, Gemini, dll) dan policy internal.
+1. **9Router (LiteLLM + Kaizent Layer):** Menangani routing ke model AI (OpenAI, Gemini, dll) dan policy internal.
 2. **MCP Server (Modular):** Micro-servers yang menyediakan _tools_ spesifik ke model AI, meliputi: Filesystem, SQLite, Obsidian, GitHub, Docker, dan Terminal.
 3. **Agent Memory:** Menyimpan konteks percakapan secara persisten menggunakan SQLite (disiapkan untuk modularity ke Vector DB di masa depan).
 4. **Knowledge Base:** Menggunakan Obsidian Vault yang di-_mount_ langsung ke dalam sistem agar AI dapat membaca SOP, panduan arsitektur, dan _meeting notes_.

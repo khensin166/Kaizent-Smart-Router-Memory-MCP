@@ -59,6 +59,11 @@
         src: ../docker-compose.prod.yml
         dest: "{{ project_dir }}/docker-compose.prod.yml"
 
+    - name: Menyalin folder compose ke server target
+      copy:
+        src: ../compose/
+        dest: "{{ project_dir }}/compose/"
+
     # ── 4. Generate file .env dari environment/Vault ────────────────────────────
     - name: Generate file .env (permission ketat, tidak di Git)
       copy:
@@ -66,7 +71,7 @@
           # Docker Registry
           IMAGE_PREFIX={{ image_prefix }}
           
-          # OmniRoute Settings
+          # 9Router Settings
           INITIAL_PASSWORD={{ lookup('env', 'INITIAL_PASSWORD') | default('CHANGEME', true) }}
         dest: "{{ project_dir }}/.env"
         mode: '0600'
@@ -74,7 +79,7 @@
 
     # ── 5. Update & deploy container ────────────────────────────────────────────
     - name: Login ke GHCR
-      command: docker login ghcr.io -u dummy -p {{ github_token }}
+      command: docker login ghcr.io -u {{ lookup('env', 'GITHUB_ACTOR') | default('khensin166', true) }} -p {{ github_token }}
       no_log: true
       ignore_errors: true
     - name: Matikan container lama
@@ -103,7 +108,7 @@
         state: started
         timeout: 300
 
-    - name: Tunggu OmniRoute siap (healthcheck)
+    - name: Tunggu 9Router siap (healthcheck)
       uri:
         url: "http://127.0.0.1:3000/dashboard"
         status_code: 200
