@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - migration/9router
   workflow_dispatch:
 
 jobs:
