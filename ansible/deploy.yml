@@ -45,10 +45,7 @@
         state: directory
         mode: "0755"
       loop:
-        - "{{ project_dir }}/data/sqlite"
-        - "{{ project_dir }}/data/backups"
-        - "{{ project_dir }}/data/memory"
-        - "{{ project_dir }}/obsidian/Vault"
+        - "{{ project_dir }}/data/9router"
         - "{{ project_dir }}/config"
 
     # ── 3. Salin file konfigurasi & Source Code ───────────────────────────────────────────────
@@ -118,4 +115,4 @@
 
     - name: Deployment selesai
       debug:
-        msg: "✅ OmniRoute berhasil di-deploy di {{ inventory_hostname }}"
+        msg: "✅ 9Router berhasil di-deploy di {{ inventory_hostname }}"

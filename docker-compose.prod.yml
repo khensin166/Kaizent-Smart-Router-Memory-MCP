@@ -4,11 +4,15 @@ version: '3.8'
 # Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 services:
-  omniroute:
+  9router:
     restart: always
     environment:
       - NODE_OPTIONS=--max-old-space-size=768
+    # Dedicated 800MB RAM limit for 9Router
+    # to prevent OOM crashes on 1GB VPS while allowing spikes
     deploy:
       resources:
         limits:
           memory: 800M
+        reservations:
+          memory: 200M

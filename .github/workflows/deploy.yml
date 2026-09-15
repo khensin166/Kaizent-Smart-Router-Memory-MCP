@@ -30,8 +30,8 @@ jobs:
 
       - name: Build and Push Docker images
         run: |
-          docker compose -f docker-compose.yml build omniroute
-          docker compose -f docker-compose.yml push omniroute
+          docker compose -f docker-compose.yml build 9router
+          docker compose -f docker-compose.yml push 9router
 
   deploy:
     name: Deploy to VPS

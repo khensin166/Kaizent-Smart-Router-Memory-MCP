@@ -4,14 +4,14 @@ version: '3.8'
 # Note: Use docker-compose.prod.yml for production overrides
 
 services:
-  omniroute:
+  9router:
     build:
       context: .
-      dockerfile: compose/omniroute.Dockerfile
-    image: ${IMAGE_PREFIX:-kaizent}/omniroute:latest
-    container_name: omniroute
+      dockerfile: compose/9router.Dockerfile
+    image: ${IMAGE_PREFIX:-kaizent}/9router:latest
+    container_name: 9router
     ports:
-      # Map OmniRoute's default port 20128 to host port 3000
+      # Map 9Router's default port 20128 to host port 3000
       - "${KAIZENT_ROUTER_PORT:-3000}:20128"
     environment:
       - HOST=0.0.0.0
@@ -19,8 +19,7 @@ services:
       - HTTP_PROXY=http://43.157.202.234:8888
       - HTTPS_PROXY=http://43.157.202.234:8888
     volumes:
-      - ./data/omniroute:/root/.omniroute
-      - ./obsidian/Vault:/vault
+      - ./data/9router:/root/.9router
     networks:
       - kaizent_network
 

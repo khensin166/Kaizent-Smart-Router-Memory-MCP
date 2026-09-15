@@ -1,9 +1,8 @@
 # .gitignore untuk Kaizent
 
 # Data persisten — jangan commit ke Git
-data/sqlite/
-data/backups/
-data/memory/
+data/9router/
+data/omniroute/
 
 # Environment — simpan di lokal saja
 .env
@@ -23,8 +22,3 @@ Thumbs.db
 # Log files
 *.log
 logs/
-
-# Obsidian cache (tapi commit struktur vault)
-obsidian/Vault/.obsidian/workspace
-obsidian/Vault/.obsidian/workspace.json
-obsidian/Vault/.trash/

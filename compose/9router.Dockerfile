@@ -6,11 +6,11 @@ WORKDIR /app
 # Install build dependencies for native modules (like better-sqlite3)
 RUN apk add --no-cache python3 make g++
 
-# Install omniroute globally
-RUN npm install -g omniroute
+# Install 9router globally
+RUN npm install -g 9router
 
-# OmniRoute exposes API and dashboard on 20128
+# 9Router exposes API and dashboard on 20128
 EXPOSE 20128
 
-# Run OmniRoutee
-CMD ["omniroute"]
+# Run 9Router
+CMD ["9router"]
